@@ -34,6 +34,14 @@ public class EmployeeService {
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
+    /**
+     * 获取员工基本信息
+     * @param page
+     * @param size
+     * @param employee
+     * @param beginDateScope
+     * @return
+     */
     public RespPageBean getEmployeeByPage(Integer page, Integer size, Employee employee,Date[] beginDateScope) {
         if (page != null && size != null) {
             page = (page - 1) * size;
@@ -46,6 +54,12 @@ public class EmployeeService {
         return bean;
     }
 
+    /**
+     * 员工资料--基本资料
+     * 添加员工信息
+     * @param employee
+     * @return
+     */
     public Integer addEmp(Employee employee) {
         Date beginContract = employee.getBeginContract();
         Date endContract = employee.getEndContract();
@@ -55,6 +69,7 @@ public class EmployeeService {
         if (result == 1) {
             Employee emp = employeeMapper.getEmployeeById(employee.getId());
             logger.info(emp.toString());
+            //将消息写进rebbitmq 消息队列
             rabbitTemplate.convertAndSend("javaboy.mail.welcome", emp);
         }
         return result;

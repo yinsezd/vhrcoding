@@ -18,6 +18,9 @@
                     </el-button>
                 </div>
                 <div>
+                    <!-- <el-button type="success" @click="testResponse" icon="el-icon-download">
+                        测试响应
+                    </el-button> -->
                     <el-upload
                             :show-file-list="false"
                             :before-upload="beforeUpload"
@@ -101,8 +104,9 @@
                         <el-col :span="5">
                             所属部门:
                             <el-popover
+                                    id="search-dept"
                                     placement="right"
-                                    title="请选择部门"
+                                    title="请选择部门搜索"
                                     width="200"
                                     trigger="manual"
                                     v-model="popVisible">
@@ -110,7 +114,7 @@
                                          @node-click="searvhViewHandleNodeClick"></el-tree>
                                 <div slot="reference"
                                      style="width: 130px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box;margin-left: 3px"
-                                     @click="showDepView">{{inputDepName}}
+                                     @click="showSearchDepView">{{inputDepName}}
                                 </div>
                             </el-popover>
                         </el-col>
@@ -136,6 +140,11 @@
             </transition>
         </div>
         <div style="margin-top: 10px">
+            <!-- 数据emps给到table 
+            stripe:默认为true,斑马表格
+            border:加竖直方向的边框
+            fixed:固定列属性
+            -->
             <el-table
                     :data="emps"
                     stripe
@@ -296,7 +305,7 @@
                         label="操作">
                     <template slot-scope="scope">
                         <el-button @click="showEditEmpView(scope.row)" style="padding: 3px" size="mini">编辑</el-button>
-                        <el-button style="padding: 3px" size="mini" type="primary">查看高级资料</el-button>
+                        <el-button @click="showEditEmpView(scope.row)" style="padding: 3px" size="mini" type="primary">查看高级资料</el-button>
                         <el-button @click="deleteEmp(scope.row)" style="padding: 3px" size="mini" type="danger">删除
                         </el-button>
                     </template>
@@ -312,6 +321,8 @@
                 </el-pagination>
             </div>
         </div>
+        <!-- 员工编辑框 -->
+        <!-- 属性：可接受boolean,当其为true时，打开dialog -->
         <el-dialog
                 :title="title"
                 :visible.sync="dialogVisible"
@@ -417,15 +428,24 @@
                         </el-col>
                         <el-col :span="6">
                             <el-form-item label="所属部门:" prop="departmentId">
+                                <!-- popover弹出框
+                                1.trigger属性用于设置何时触发 Popover
+                                hover：悬停触发
+                                click：点击触发
+                                focus：集中，焦距触发
+                                manual：手动触发
+                                 -->
                                 <el-popover
+                                        id="edit-dept"
                                         placement="right"
-                                        title="请选择部门"
+                                        title="请选择部门编辑"
                                         width="200"
-                                        trigger="manual"
-                                        v-model="popVisible">
+                                        trigger="hover"
+                                        v-model="visible">
                                     <el-tree default-expand-all :data="allDeps" :props="defaultProps"
                                              @node-click="handleNodeClick"></el-tree>
-                                    <div slot="reference"
+                                    <!-- 触发 Popover 显示的 HTML 元素 -->
+                                    <div slot="reference" 
                                          style="width: 150px;display: inline-flex;font-size: 13px;border: 1px solid #dedede;height: 26px;border-radius: 5px;cursor: pointer;align-items: center;padding-left: 8px;box-sizing: border-box"
                                          @click="showDepView">{{inputDepName}}
                                     </div>
@@ -580,6 +600,7 @@
                 emps: [],
                 loading: false,
                 popVisible: false,
+                visible: false,
                 dialogVisible: false,
                 total: 0,
                 page: 1,
@@ -685,6 +706,13 @@
             this.initPositions();
         },
         methods: {
+            // 测试响应的
+            // testResponse(){
+            //     this.getRequest('/employee/basic/testResponse').then(function(response){
+            //         console.log(response);
+            //         alert(response);
+            //     })
+            // },
             searvhViewHandleNodeClick(data) {
                 this.inputDepName = data.name;
                 this.searchValue.departmentId = data.id;
@@ -745,6 +773,7 @@
                 this.title = '编辑员工信息';
                 this.emp = data;
                 this.inputDepName = data.department.name;
+                //打开编辑窗口
                 this.dialogVisible = true;
             },
             deleteEmp(data) {
@@ -796,6 +825,9 @@
                 this.popVisible = !this.popVisible
             },
             showDepView() {
+                this.visible = !this.visible
+            },
+            showSearchDepView(){
                 this.popVisible = !this.popVisible
             },
             initPositions() {

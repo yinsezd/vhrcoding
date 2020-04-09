@@ -30,6 +30,11 @@ import java.util.List;
  */
 public class POIUtils {
 
+    /**
+     * 生成excel文档
+     * @param list
+     * @return
+     */
     public static ResponseEntity<byte[]> employee2Excel(List<Employee> list) {
         //1. 创建一个 Excel 文档
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -162,6 +167,7 @@ public class POIUtils {
         HSSFCell c24 = r0.createCell(24);
         c24.setCellStyle(headerStyle);
         c24.setCellValue("合同终止日期");
+        //把相应的信息填到对应的列里
         for (int i = 0; i < list.size(); i++) {
             Employee emp = list.get(i);
             HSSFRow row = sheet.createRow(i + 1);
@@ -169,6 +175,7 @@ public class POIUtils {
             row.createCell(1).setCellValue(emp.getName());
             row.createCell(2).setCellValue(emp.getWorkID());
             row.createCell(3).setCellValue(emp.getGender());
+            //日期类型的数据，需要先设置列的类型，再将该类型的数据插到列里
             HSSFCell cell4 = row.createCell(4);
             cell4.setCellStyle(dateCellStyle);
             cell4.setCellValue(emp.getBirthday());
@@ -202,7 +209,7 @@ public class POIUtils {
             cell25.setCellStyle(dateCellStyle);
             cell25.setCellValue(emp.getConversionTime());
         }
-
+        //创建字节数组缓冲区
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {

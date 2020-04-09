@@ -8,9 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +48,11 @@ public class EmpBasicController {
         return employeeService.getEmployeeByPage(page, size, employee,beginDateScope);
     }
 
+    /**
+     * 添加员工基本资料
+     * @param employee
+     * @return
+     */
     @PostMapping("/")
     public RespBean addEmp(@RequestBody Employee employee) {
         if (employeeService.addEmp(employee) == 1) {
@@ -101,12 +109,22 @@ public class EmpBasicController {
         return departmentService.getAllDepartments();
     }
 
+    /**
+     * 数据导出
+     * @return
+     */
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportData() {
-        List<Employee> list = (List<Employee>) employeeService.getEmployeeByPage(null, null, null,null).getData();
+        List<Employee> list = (List<Employee>) employeeService.getEmployeeByPage(null, null, new Employee(),null).getData();
         return POIUtils.employee2Excel(list);
     }
 
+    /**
+     * 数据导入（文件上传，文件解析）
+     * @param file
+     * @return
+     * @throws IOException
+     */
     @PostMapping("/import")
     public RespBean importData(MultipartFile file) throws IOException {
         List<Employee> list = POIUtils.excel2Employee(file, nationService.getAllNations(), politicsstatusService.getAllPoliticsstatus(), departmentService.getAllDepartmentsWithOutChildren(), positionService.getAllPositions(), jobLevelService.getAllJobLevels());
@@ -115,4 +133,34 @@ public class EmpBasicController {
         }
         return RespBean.error("上传失败");
     }
+
+    /**
+     * 文件上传测试
+     */
+//    @PostMapping("/testimport")
+//    public RespBean testimportData(MultipartFile file) throws IOException {
+//        file.transferTo(new File("E://test.doc"));
+//        return  RespBean.ok("上传成功");
+//    }
+    /**
+     * 响应输出测试
+     */
+    @GetMapping("/testResponse")
+    public void sendToResponse(HttpServletResponse response){
+        PrintWriter writer = null;
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Type", "text/html; charset=UTF-8");
+        try {
+            writer = response.getWriter();
+            writer.write("响应成功！");
+            writer.println("响应成功！");
+            System.out.println("已输出");
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

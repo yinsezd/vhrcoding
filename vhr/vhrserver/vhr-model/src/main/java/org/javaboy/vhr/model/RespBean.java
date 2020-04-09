@@ -69,4 +69,5 @@ public class RespBean {
         this.obj = obj;
         return this;
     }
+
 }

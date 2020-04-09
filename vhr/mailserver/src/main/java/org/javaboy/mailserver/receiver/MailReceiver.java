@@ -40,28 +40,37 @@ public class MailReceiver {
     @Autowired
     TemplateEngine templateEngine;
 
+    //从
     @RabbitListener(queues = "javaboy.mail.welcome")
     public void handler(Employee employee) {
         logger.info(employee.toString());
         //收到消息，发送邮件
+        //创建消息对象
         MimeMessage msg = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(msg);
         try {
+            //设置邮件接收者
             helper.setTo(employee.getEmail());
+            //设置邮件发送者
             helper.setFrom(mailProperties.getUsername());
+            //邮件主题
             helper.setSubject("入职欢迎");
+            //发送日期
             helper.setSentDate(new Date());
+            //使用邮件模板
             Context context = new Context();
             context.setVariable("name", employee.getName());
             context.setVariable("posName", employee.getPosition().getName());
             context.setVariable("joblevelName", employee.getJobLevel().getName());
             context.setVariable("departmentName", employee.getDepartment().getName());
             String mail = templateEngine.process("mail", context);
+            //设置邮件内容
             helper.setText(mail, true);
+            //发送消息
             javaMailSender.send(msg);
         } catch (MessagingException e) {
             e.printStackTrace();
-            logger.error("邮件发送失败："+e.getMessage());
+            logger.error("邮件发送失败：" + e.getMessage());
         }
     }
 }

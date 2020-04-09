@@ -16,8 +16,13 @@
             </el-form-item>
             <el-form-item prop="password">
                 <el-input size="normal" type="password" v-model="loginForm.password" auto-complete="off"
-                          placeholder="请输入密码" @keydown.enter.native="submitLogin"></el-input>
+                          placeholder="请输入密码"></el-input>
             </el-form-item>
+            <el-form-item prop="code">
+                <el-input size="normal" type="text" v-model="loginForm.code" auto-complete="off"
+                          placeholder="点击刷新" @keydown.enter.native="submitLogin" style="width:250px"></el-input>
+                <img :src="verUrl" @click="updateImg" alt="">
+            </el-form-item> 
             <el-checkbox size="normal" class="loginRemember" v-model="checked"></el-checkbox>
             <el-button size="normal" type="primary" style="width: 100%;" @click="submitLogin">登录</el-button>
         </el-form>
@@ -31,18 +36,24 @@
         data() {
             return {
                 loading: false,
+                verUrl:'/vercode?time='+new Date(),
                 loginForm: {
                     username: 'admin',
-                    password: '123'
+                    password: '123',
+                    code:''
                 },
                 checked: true,
                 rules: {
                     username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-                    password: [{required: true, message: '请输入密码', trigger: 'blur'}]
+                    password: [{required: true, message: '请输入密码', trigger: 'blur'}],
+                    code: [{required: true, message: '请输入验证码', trigger: 'blur'}]
                 }
             }
         },
         methods: {
+            updateImg(){
+                this.verUrl = '/vercode?time='+new Date();
+            },
             submitLogin() {
                 this.$refs.loginForm.validate((valid) => {
                     if (valid) {
@@ -87,5 +98,9 @@
     .loginRemember {
         text-align: left;
         margin: 0px 0px 15px 0px;
+    }
+    .el-form-item__content{
+        display: flex;
+        align-items: center;
     }
 </style>
